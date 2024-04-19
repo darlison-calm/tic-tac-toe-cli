@@ -98,14 +98,11 @@ class Player
         else
           puts "Position already choosen"
         end
+      
       else
           puts "Invalid choice"
       end
-
-       
-
     end
-    
   end
 end
 
