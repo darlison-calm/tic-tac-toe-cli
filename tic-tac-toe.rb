@@ -14,7 +14,6 @@ class Game
   def play
     loop do
       puts "#{current_player.name} (#{current_player.symbol}) turn"
-      display_board
 
       position = current_player.select_position(board, self)
       
@@ -25,12 +24,13 @@ class Game
         display_board
         return    
       
-      elsif self.board_full?(board)  
+      elsif self.board_full?
         puts "It's a draw!"
         display_board
         return
       
       else 
+        
         self.switch_players
 
       end
@@ -46,28 +46,33 @@ class Game
     puts "#{board[6]} | #{board[7]} | #{board[8]}"
   end
   
+  def allowed_place(selection)
+    self.board[selection].is_a?(Integer)
+
+  end
+
+  def player_won?(board, pick)
+    WIN_CONDITIONS.any? do |conditions|
+      conditions.all? {|position| board[position] == pick}
+    end
+  end
+  
+  def board_full?
+    self.board.all?{|position| position == 'X' || position == 'O' }
+  end
+  
   private
   
   def add_to_board(cord, symbol)
     
     self.board[cord] = symbol
   end
-  
-
-  def player_won?(board,symbol)
-    WIN_CONDITIONS.any? do |conditions|
-      conditions.all? {|position| board[position] == current_player.symbol}
-    end
-  end
-
-  def board_full?(board)
-    board.all?{|position| position == current_player.symbol || position == other_player.symbol }
-  end
 
   def switch_players 
     @current_player , @other_player =  @other_player, @current_player
   
   end
+
 end
 
 class Player
@@ -82,16 +87,25 @@ class Player
   def select_position(board, game)
     
     loop do
-      puts"\n"
-      puts "Select your #{symbol} position: "
-      selection = gets.chomp.to_i
-      
-      if board[selection].is_a?(Integer) && selection.between?(0, 8) && selection.is_a?(Integer)
-        return selection  
-      end
-      puts "Position #{selection} is not available. Try again."
       game.display_board
+      puts "\nSelect your #{symbol} position: "
+      selection = gets.chomp
+      
+      if selection.match?(/[0-8]/) && selection.size == 1
+        selection = selection.to_i
+        if game.allowed_place(selection)
+          return selection
+        else
+          puts "Position already choosen"
+        end
+      else
+          puts "Invalid choice"
+      end
+
+       
+
     end
+    
   end
 end
 
